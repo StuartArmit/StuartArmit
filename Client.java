@@ -61,7 +61,6 @@ public class Client implements ActionListener {
 	
 	// Click determines row and col data to send
 	public void actionPerformed(ActionEvent ae) {
-		frame.playBoard();
 		int r = ((MatrixButton) ae.getSource()).getRow();
 		int c = ((MatrixButton) ae.getSource()).getCol();
 		System.out.println(r + "  " + c);
