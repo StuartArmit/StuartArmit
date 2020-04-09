@@ -5,23 +5,24 @@ import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Frame extends JFrame implements ActionListener{
+public class Frame extends JFrame {
+	MatrixButton matrixButton;
 	private static int rows = 8;
 	private static int columns = 8;
 	private static Color col1 = Color.DARK_GRAY;
 	private static Color col2 = Color.WHITE;
 	private JButton[][] button = new JButton[rows][columns];
-	private static String[][] data = new String[rows][columns];
-	private char symbol1;
-	private char symbol2;
+	private String symbol1 = "O";
+	private String symbol2 = "X";
 
 	// General properties for game board
 	// 2d array creates buttons in alternating colours, sets font for pieces
 	public Frame() {
-
 		setTitle("Draughts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 700);
@@ -31,12 +32,12 @@ public class Frame extends JFrame implements ActionListener{
 		JPanel gridPanel = new JPanel(new GridLayout(rows, columns));
 		mainContainer.add(gridPanel);
 
+		ActionListener listener = new Client();
 		for (int i = 0; i < button.length; i++) {
 			for (int j = 0; j < button[i].length; j++) {
-				int n = i * button[i].length + j + 1;
-				button[i][j] = new JButton();// (String.valueOf(n));
-				button[i][j].setActionCommand("Moved");
-				button[i][j].addActionListener(this);
+				button[i][j] = new MatrixButton(i, j);
+
+				button[i][j].addActionListener(listener);
 				gridPanel.add(button[i][j]);
 				button[i][j].setForeground(Color.RED);
 				Font myFont = new Font("Monospace", Font.BOLD, 40);
@@ -65,62 +66,87 @@ public class Frame extends JFrame implements ActionListener{
 		}
 	}
 
-	// population script for each player that toStrings chars to represent game
-	// pieces at startup
-	public void pieceSetupP1(char p1) {
-		symbol1 = p1;
-
-		for (int j = 0; j < (8); j += 2) {
-			button[5][j].setText(String.valueOf(symbol1));
-			button[7][j].setText(String.valueOf(symbol1));
+	// Clears board
+	public void whipeBoard() {
+		for (int i = 0; i < button.length; i++) {
+			for (int j = 0; j < button[i].length; j++) {
+				button[i][j].setText(" ");
+			}
 		}
-		for (int j = 1; j < (8); j += 2)
-			button[6][j].setText(String.valueOf(symbol1));
+	}
+	// receive data from client and creates game pieces
+	public void placePiece(int token, int i, int j) {
+		if (token == 1 || token == 3) {
+			button[i][j].setText(symbol1);
+		}
+		if (token == 2 || token == 4) {
+			button[i][j].setText(symbol2);
+		}
+	}
+	
+	// receive data from client and removes game pieces
+	public void removePiece(int token, int i, int j) {
+		if (token == 1 || token == 3) {
+			button[i][j].setText(null);
+		}
+		if (token == 2 || token == 4) {
+			button[i][j].setText(null);
+		}
 	}
 
-	public void pieceSetupP2(char p2) {
-		symbol2 = p2;
-		for (int j = 1; j < (8); j += 2) {
-			button[0][j].setText(String.valueOf(symbol2));
-			button[2][j].setText(String.valueOf(symbol2));
-		}
-		for (int j = 0; j < (8); j += 2)
-			button[1][j].setText(String.valueOf(symbol2));
-	}
-	//Disables buttons for when its not your turn
+	// Disables buttons for when its not your turn
 	public void blockBoard() {
 		for (int i = 0; i < button.length; i++) {
-			for (int j = 0; j < button[i].length; j++) {
-					button[i][j].setEnabled(false);
-				}
+			for (int j = 0; j < button.length; j++) {
+				button[i][j].setEnabled(false);
 			}
-		}	
-	//Re-enables buttons for when it is your turn
+		}
+	}
+	
+	// Disables buttons for when its not your turn
+	public void playBoard() {
+		blockBoard();
+		for (int i = 0; i < button.length; i++) {
+			for (int j = 0; j < button.length; j++) {
+				if(button[i][j].getText() == "O"){
+				button[i][j].setEnabled(true);
+				}
+				if (button[i][j].getText() == "X"){
+					button[i][j].setEnabled(true);
+			}
+		}
+	}
+}		
+	// frees buttons that are legal moves dependent on player
+	public void move(int token, int r, int c) {
+		if (token == 1) {
+		if (button[r++][c++] == null) {
+			button[r++][c++].setEnabled(true);
+		}
+		if (button[r++][c--] == null) {
+			button[r++][c--].setEnabled(true);
+		}
+	}
+	
+	if (token == 2) {
+	if (button[r--][c--] == null) {
+		button[r--][c--].setEnabled(true);
+	}
+	if (button[r--][c--] == null) {
+		button[r--][c++].setEnabled(true);
+	}
+}
+}	
+	
+	
+	// Re-enables buttons for when it is your turn
 	public void freeBoard() {
 		for (int i = 0; i < button.length; i++) {
-			for (int j = 0; j < button[i].length; j++) {
-					button[i][j].setEnabled(true);
-				}
-			}
-		}	
-	
-	
+			for (int j = 0; j < button.length; j++) {
+				button[i][j].setEnabled(true);
 
-	public void actionPerformed(ActionEvent e) {
-		int tempi = 0;
-		int tempj = 0;
-		String savedText;
-		for (int i = 0; i < button.length; i++) {
-			for (int j = 0; j < button[i].length; j++) {
-				if (e.getSource() == button[i][j]) {
-					i = tempi;
-					j = tempj;
-				//	if(symbol1 == button[i][j].getText(String.valueOf(text)){
-					
-					
-				}
 			}
+		}
 	}
-	}
-	
+
 }

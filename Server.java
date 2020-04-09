@@ -6,17 +6,28 @@ import java.net.Socket;
 
 public class Server {
 	private ServerSocket ss;
-
+	MatrixButton matrixButton;
 	private int numPlayers;
-	private char pToken1;
-	private char pToken2;
 	private ServerConnection player1;
 	private ServerConnection player2;
-	private int p1ButtonPress;
-	private int p2ButtonPress;
+	private int[] checkerType;
+	private static int rows = 8;
+	private static int columns = 8;
+	private static int[][] serverData = new int[rows][columns];
+	private int p1rowButtonPress;
+	private int p1colButtonPress;
+	private int p2rowButtonPress;
+	private int p2colButtonPress;
 
+	
 	public Server() {
 		numPlayers = 0;
+		checkerType = new int[4];
+		checkerType[0] = 1; // whiteChecker
+		checkerType[1] = 2; // blackChecker
+		checkerType[2] = 3; // whiteKing
+		checkerType[3] = 4; // blackKing
+
 		try {
 			ss = new ServerSocket(4999);
 		} catch (IOException ex) {
@@ -35,20 +46,22 @@ public class Server {
 				ServerConnection sc = new ServerConnection(s, numPlayers);
 				if (numPlayers == 1) {
 					player1 = (sc);
-					pToken1 = 'O';
 				} else {
 					player2 = (sc);
-					pToken2 = 'X';
 				}
 				Thread t = new Thread(sc);
 				t.start();
 			}
 			System.out.println("2 Players game ready");
+
 		} catch (IOException ex) {
 			System.out.println("Accept Connection Failed");
 
 		}
 	}
+
+	
+
 
 	// Sever connection sends and receives ints and chars
 	private class ServerConnection implements Runnable {
@@ -66,33 +79,96 @@ public class Server {
 			} catch (IOException ex) {
 				System.out.println("IOException from run()");
 			}
+			dataSetup();
 		}
 		
-
-
+		//Run gives player ID and waits for connections back
 		public void run() {
 			try {
+				
 				dataOut.writeInt(playerID);
-				dataOut.writeChar(pToken1);
-				dataOut.writeChar(pToken2);
-			
 				dataOut.flush();
 
 				while (true) {
-
+					if (playerID == 1) {
+						p1rowButtonPress = dataIn.readInt();
+						p1colButtonPress = dataIn.readInt();
+						System.out.println("Player 1 clicked  " + p1rowButtonPress +" "+ p1colButtonPress);
+						
+						returnButtonPos1(p1rowButtonPress, p1colButtonPress);
+						dataUpdate1(p1rowButtonPress, p1colButtonPress);
+					}else {
+						p2rowButtonPress = dataIn.readInt();
+						p2colButtonPress = dataIn.readInt();
+						System.out.println("Player 2 clicked  " + p2rowButtonPress +" "+ p2colButtonPress);
+						
+						returnButtonPos2(p2rowButtonPress, p2colButtonPress);
+						dataUpdate2(p2rowButtonPress, p2colButtonPress);
+					}
 				}
 
 			} catch (IOException ex) {
-				System.out.println("Button aren't working correctly");
+				System.out.println("game crash server not receiving data or player quit");
 			}
 		}
 
+		// Returns data of button position for player
+		public void returnButtonPos1(int r, int c) {
+			try {
+				dataOut.writeInt(r);
+				dataOut.writeInt(c);
+				dataOut.flush();
+			} catch (IOException ex) {
+				System.out.println("IOException from sendButtonNum() cc");
+			}
+		}
+		public void returnButtonPos2(int r, int c) {
+			try {
+				dataOut.writeInt(r);
+				dataOut.writeInt(c);
+				dataOut.flush();
+			} catch (IOException ex) {
+				System.out.println("IOException from sendButtonNum() cc");
+			}
+		}
+		
+		// Population script but for Server side game data
+		public void dataSetup() {
+			for (int j = 0; j < (8); j += 2) {
+				serverData[5][j] = checkerType[0];
+				serverData[7][j] = checkerType[0];
+			}
+			for (int j = 1; j < (8); j += 2) {
+				serverData[6][j] = checkerType[0];
+			}
+			for (int j = 1; j < (8); j += 2) {
+				serverData[0][j] = checkerType[1];
+				serverData[2][j] = checkerType[1];
+			}
+			for (int j = 0; j < (8); j += 2) {
+				serverData[1][j] = checkerType[1];
+			}
+		}
+
+		// Client data is then stored and returned
+		public void dataUpdate1(int r, int c) {
+			serverData[r][c] = checkerType[0];
+			returnButtonPos1(r, c);
+
+			}
+		public void dataUpdate2(int r, int c) {
+			serverData[r][c] = checkerType[1];
+			returnButtonPos2(r, c);
+
+		}
+		
 	}
+
+	
 
 	public static void main(String[] args) throws IOException {
 
 		Server s = new Server();
 		s.acceptConnections();
-
 	}
 }
