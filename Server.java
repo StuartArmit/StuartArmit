@@ -94,16 +94,14 @@ public class Server {
 						p1rowButtonPress = dataIn.readInt();
 						p1colButtonPress = dataIn.readInt();
 						System.out.println("Player 1 clicked  " + p1rowButtonPress +" "+ p1colButtonPress);
-						
 						returnButtonPos(p1rowButtonPress, p1colButtonPress);
-						dataUpdate(playerID, p1rowButtonPress, p1colButtonPress);
-					}else {
+				//		dataUpdate(playerID, p1rowButtonPress, p1colButtonPress);
+					}else if (playerID == 2) {
 						p2rowButtonPress = dataIn.readInt();
 						p2colButtonPress = dataIn.readInt();
 						System.out.println("Player 2 clicked  " + p2rowButtonPress +" "+ p2colButtonPress);
-						
 						returnButtonPos(p2rowButtonPress, p2colButtonPress);
-						dataUpdate(playerID, p2rowButtonPress, p2colButtonPress);
+					//	dataUpdate(playerID, p2rowButtonPress, p2colButtonPress);
 					}
 				}
 
@@ -146,10 +144,10 @@ public class Server {
 		public void dataUpdate(int id, int r, int c) {
 			if (id ==1) { 
 				serverData[r][c] = checkerType[0];
-			returnButtonPos(r, c);
+				returnButtonPos(r, c);
 		}else { 
-			serverData[r][c] = checkerType[1];
-			returnButtonPos(r, c);
+				serverData[r][c] = checkerType[1];
+				returnButtonPos(r, c);
 			}
 		}
 	}

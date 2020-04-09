@@ -45,26 +45,37 @@ public class Client implements ActionListener {
 
 		if (playerID == 1) {
 			System.out.println("you are player1, you go first");
-			frame.playBoard();
+			
+
 		} else {
 			System.out.println("you are player2, please wait");
+			//frame.blockBoard();
 		}
-		}
+	}
+		
 	
 	
 	// Click determines row and col data to send
 	public void actionPerformed(ActionEvent ae) {
-	//	while(turnsMade %2 == 0) {
+		if(turnsMade%2 == 0) {
 		int r = ((MatrixButton) ae.getSource()).getRow();
 		int c = ((MatrixButton) ae.getSource()).getCol();
 		System.out.println(playerID + "  "+ r + "  " + c);
-	//	
-	//	storeDeletedPieces(r, c);
-	//	frame.removePiece(playerID, r, c);
-	//	frame.playBoard();
+		frame.playBoard(playerID);
+		frame.removePiece(playerID, r, c);
+		storeDeletedPieces(r, c);
+		frame.move(playerID, r, c);
 		turnsMade++;
 		System.out.println("turns: " + turnsMade);
-	//	}
+		}
+		else if (turnsMade%2 != 0) {
+		int r = ((MatrixButton) ae.getSource()).getRow();
+		int c = ((MatrixButton) ae.getSource()).getCol();
+		System.out.println(playerID + "  "+ r + "  " + c);
+		cc.sendButtonPos(r, c);
+		turnsMade++;
+		System.out.println("turns: " + turnsMade);
+
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				releaseTurn(r, c);
@@ -72,18 +83,21 @@ public class Client implements ActionListener {
 		});
 		t.start();
 	}
+	}
 
 	// waits for other player to play before releasing
 	public void releaseTurn(int r, int c) {
-		cc.sendButtonPos(r, c);
+		
 		cc.receiveDataPos();
 		dataUpdate();
-	//	frame.move(playerID, r, c);
+		frame.playBoard(playerID);
 		
 	}
 
 	public void storeDeletedPieces(int r, int c) {
 		clientData[r][c] = 0;
+
+
 	}
 
 	// checks for updates and writes to gui
@@ -128,7 +142,7 @@ public class Client implements ActionListener {
 			try {
 				dataOut.writeInt(r);
 				dataOut.writeInt(c);
-				// System.out.println("run SBP " + r + " " + c);
+				 System.out.println("TEST SBP " + playerID + " " + r + " " + c);
 				dataOut.flush();
 			} catch (IOException ex) {
 				System.out.println("IOException from sendButtonNum() cc");
@@ -142,7 +156,7 @@ public class Client implements ActionListener {
 			try {
 				r = dataIn.readInt();
 				c = dataIn.readInt();
-				 System.out.println("run RDP " + r + " " + c);
+				 System.out.println("TEST RDP " + playerID + " " + r + " " + c);
 				if (playerID == 1) {
 					clientData[r][c] = 1;
 					frame.placePiece(1, r, c);
@@ -151,7 +165,6 @@ public class Client implements ActionListener {
 					clientData[r][c] = 2;
 					frame.placePiece(2, r, c);
 					dataUpdate();
-					// System.out.println("receivedatapos test " + r + " " + c);
 				}
 
 			} catch (IOException ex) {

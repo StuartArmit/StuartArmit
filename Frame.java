@@ -103,14 +103,15 @@ public class Frame extends JFrame {
 	}
 	
 	// Disables buttons for when its not your turn
-	public void playBoard() {
-		blockBoard();
+	public void playBoard(int id) {
+		blockBoard();	
 		for (int i = 0; i < button.length; i++) {
 			for (int j = 0; j < button.length; j++) {
+				if(id ==1) {
 				if(button[i][j].getText() == "O"){
 				button[i][j].setEnabled(true);
 				}
-				if (button[i][j].getText() == "X"){
+				}else if(button[i][j].getText() == "X"){
 					button[i][j].setEnabled(true);
 			}
 		}
@@ -118,25 +119,27 @@ public class Frame extends JFrame {
 }		
 	// frees buttons that are legal moves dependent on player
 	public void move(int token, int r, int c) {
-		if (token == 1) {
-		if (button[r++][c++] == null) {
-			button[r++][c++].setEnabled(true);
-		}
-		if (button[r++][c--] == null) {
-			button[r++][c--].setEnabled(true);
-		}
-	}
 	
-	if (token == 2) {
-	if (button[r--][c--] == null) {
-		button[r--][c--].setEnabled(true);
-	}
-	if (button[r--][c--] == null) {
-		button[r--][c++].setEnabled(true);
-	}
-}
+		blockBoard();
+		if (token == 2) {
+			r = r+1;
+			c = c+1;
+			button[r][c].setEnabled(true);
+			System.out.println(r + " " + c);
+			c = c-2;
+			button[r][c].setEnabled(true);
+			System.out.println(r + " " + c);
+
+		}else {
+			r = r-1;
+			c = c+1;
+			button[r][c].setEnabled(true);
+			System.out.println(r + " " + c);
+			c = c-2;
+			button[r][c].setEnabled(true);
+			System.out.println(r + " " + c);
 }	
-	
+	}	
 	
 	// Re-enables buttons for when it is your turn
 	public void freeBoard() {
