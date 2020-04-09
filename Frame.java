@@ -22,7 +22,7 @@ public class Frame extends JFrame {
 
 	// General properties for game board
 	// 2d array creates buttons in alternating colours, sets font for pieces
-	public Frame() {
+	public Frame(Client client) {
 		setTitle("Draughts");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(700, 700);
@@ -32,12 +32,11 @@ public class Frame extends JFrame {
 		JPanel gridPanel = new JPanel(new GridLayout(rows, columns));
 		mainContainer.add(gridPanel);
 
-		ActionListener listener = new Client();
 		for (int i = 0; i < button.length; i++) {
 			for (int j = 0; j < button[i].length; j++) {
 				button[i][j] = new MatrixButton(i, j);
 
-				button[i][j].addActionListener(listener);
+				button[i][j].addActionListener(client);
 				gridPanel.add(button[i][j]);
 				button[i][j].setForeground(Color.RED);
 				Font myFont = new Font("Monospace", Font.BOLD, 40);

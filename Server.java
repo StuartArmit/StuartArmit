@@ -95,15 +95,15 @@ public class Server {
 						p1colButtonPress = dataIn.readInt();
 						System.out.println("Player 1 clicked  " + p1rowButtonPress +" "+ p1colButtonPress);
 						
-						returnButtonPos1(p1rowButtonPress, p1colButtonPress);
-						dataUpdate1(p1rowButtonPress, p1colButtonPress);
+						returnButtonPos(p1rowButtonPress, p1colButtonPress);
+						dataUpdate(playerID, p1rowButtonPress, p1colButtonPress);
 					}else {
 						p2rowButtonPress = dataIn.readInt();
 						p2colButtonPress = dataIn.readInt();
 						System.out.println("Player 2 clicked  " + p2rowButtonPress +" "+ p2colButtonPress);
 						
-						returnButtonPos2(p2rowButtonPress, p2colButtonPress);
-						dataUpdate2(p2rowButtonPress, p2colButtonPress);
+						returnButtonPos(p2rowButtonPress, p2colButtonPress);
+						dataUpdate(playerID, p2rowButtonPress, p2colButtonPress);
 					}
 				}
 
@@ -113,7 +113,7 @@ public class Server {
 		}
 
 		// Returns data of button position for player
-		public void returnButtonPos1(int r, int c) {
+		public void returnButtonPos(int r, int c) {
 			try {
 				dataOut.writeInt(r);
 				dataOut.writeInt(c);
@@ -122,15 +122,7 @@ public class Server {
 				System.out.println("IOException from sendButtonNum() cc");
 			}
 		}
-		public void returnButtonPos2(int r, int c) {
-			try {
-				dataOut.writeInt(r);
-				dataOut.writeInt(c);
-				dataOut.flush();
-			} catch (IOException ex) {
-				System.out.println("IOException from sendButtonNum() cc");
-			}
-		}
+
 		
 		// Population script but for Server side game data
 		public void dataSetup() {
@@ -151,17 +143,15 @@ public class Server {
 		}
 
 		// Client data is then stored and returned
-		public void dataUpdate1(int r, int c) {
-			serverData[r][c] = checkerType[0];
-			returnButtonPos1(r, c);
-
-			}
-		public void dataUpdate2(int r, int c) {
+		public void dataUpdate(int id, int r, int c) {
+			if (id ==1) { 
+				serverData[r][c] = checkerType[0];
+			returnButtonPos(r, c);
+		}else { 
 			serverData[r][c] = checkerType[1];
-			returnButtonPos2(r, c);
-
+			returnButtonPos(r, c);
+			}
 		}
-		
 	}
 
 	
