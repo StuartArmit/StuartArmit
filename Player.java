@@ -1,11 +1,15 @@
+import java.io.Serializable;
 
-public class Player {
+public class Player implements Serializable {
 	private int id;
 	private int row;
 	private int col;
 	
 	public Player(int id, int row, int col){
 		
+	this.id = id;
+	this.row = row;
+	this.col = col;
 	}
 
 	public int getId() {

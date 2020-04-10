@@ -67,6 +67,7 @@ public class Client implements ActionListener {
 		frame.removePiece(delr, delc);
 		storeDeletedPieces(delr, delc);
 		dataUpdate();
+		cc.sendDelPos(delr, delc);
 		frame.move(playerID, delr, delc);
 		turnsMade++;
 		System.out.println("turns: " + turnsMade);
@@ -132,8 +133,6 @@ public class Client implements ActionListener {
 		private Socket s;
 		private ObjectInputStream dataIn;
 		private ObjectOutputStream dataOut;
-		private DataInputStream intIn;
-		private DataOutputStream intOut;
 		
 		//Socket connection creates port to connect and data ins and outs
 		public ClientConnection() {
@@ -142,7 +141,7 @@ public class Client implements ActionListener {
 				dataIn = new ObjectInputStream(s.getInputStream());
 				dataOut = new ObjectOutputStream(s.getOutputStream());
 				
-				playerID = intIn.readInt();
+				playerID = dataIn.readInt();
 				System.out.println("Connected to server as player " + playerID);
 
 			} catch (IOException ex) {
@@ -153,30 +152,52 @@ public class Client implements ActionListener {
 		//sends row and col data to server
 		public void sendButtonPos(int id, int r, int c) {
 			try {
+				System.out.println("TEST SBP " + id + " " + r + " " + c);
 				Player send = new Player(id,r,c);
 				dataOut.writeObject(send);
-			
-				 System.out.println("TEST SBP " + id + " " + r + " " + c);
 				dataOut.flush();
 			} catch (IOException ex) {
 				System.out.println("IOException from sendButtonPos cc");
 			}
 		}
 
+		public void sendDelPos(int r, int c) {
+			try {
+				System.out.println("TEST SDP " + " " + r + " " + c);
+				Delete sendDel = new Delete(r,c);
+				dataOut.writeObject(sendDel);
+				dataOut.flush();
+			} catch (IOException ex) {
+				System.out.println("IOException from sendButtonPos cc");
+			}
+		}
 
+		public void receiveDelPos() {
+			try {
+				Delete receiveDel = (Delete)dataIn.readObject();
+				int r = receiveDel.getRow();
+				int c = receiveDel.getCol();
+				System.out.println("TEST RDP " + r + " " + c);
+				storeDeletedPieces(r,c);
+				dataUpdate();
+			} catch (IOException | ClassNotFoundException ex) {
+				System.out.println("IOException from RDP cc");
+		}
+		}
+		
 		public void receiveDataPos() {
 			try {
 				
-				Player returner = (Player)dataIn.readObject();
-				int gPID = returner.getId();
-				int r = returner.getRow();
-				int c = returner.getCol();
+				Player sent = (Player)dataIn.readObject();
+				int gPID = sent.getId();
+				int r = sent.getRow();
+				int c = sent.getCol();
 			//	int pID = dataIn.readObject();
 			//	int otherr = dataIn.readObject();
 			//	int otherc = dataIn.readObject();
 
-		//		 System.out.println("TEST RDP " + playerID + " " + gPID + " " + r + " " + c+ " returned move: " + pID + " " + otherr + " " + otherc);
-				if (playerID == 1) {
+				 System.out.println("TEST RDP " + playerID + " " + gPID + " " + r + " " + c+ " returned move: ");
+				if (playerID == 1 && gPID ==1) {
 					clientData[r][c] = 1;
 					frame.placePiece(1, r, c);
 					dataUpdate();
@@ -186,7 +207,7 @@ public class Client implements ActionListener {
 	//				frame.placePiece(2, otherr, otherc);
 	//				dataUpdate();
 					
-				} else if (playerID == 2) {
+				} else if (playerID == 2 && gPID ==2) {
 					clientData[r][c] = 2;	
 					frame.placePiece(2, r, c);
 					dataUpdate();

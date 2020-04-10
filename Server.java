@@ -74,18 +74,16 @@ public class Server {
 	// Sever connection sends and receives ints and chars
 	private class ServerConnection implements Runnable {
 		private Socket socket;
-		private ObjectInputStream dataIn;
 		private ObjectOutputStream dataOut;
-		private DataInputStream intIn;
-		private DataOutputStream intOut;
+		private ObjectInputStream dataIn;
 		private int playerID;
 
 		public ServerConnection(Socket s, int id) {
 			socket = s;
 			playerID = id;
 			try {
-				dataIn = new ObjectInputStream(socket.getInputStream());
 				dataOut = new ObjectOutputStream(socket.getOutputStream());
+				dataIn = new ObjectInputStream(socket.getInputStream());
 			} catch (IOException ex) {
 				System.out.println("IOException from run()");
 			}
@@ -96,28 +94,29 @@ public class Server {
 		public void run() {
 			try {
 				
-				intOut.writeInt(playerID);
+				dataOut.writeInt(playerID);
 				dataOut.flush();
 
 				while (true) {
 					if (playerID == 1) {
 						Player collector = (Player)dataIn.readObject();
-						
+						Delete collectDel = (Delete)dataIn.readObject();
 						returnButtonPos(collector);
-						//outputToOpponent(2,p2row, p2col);
-						
-						System.out.println("Player 1 clicked " + p1row +" "+ p1col);
-						dataUpdate(playerID, p1row, p1col);
+			//			outputToOpponent(returner);
+						returnDelPos(collectDel);
+						System.out.println("Player 1 clicked " + collector.getRow() +" "+ collector.getRow());
+						dataUpdate(playerID, collector.getRow(), collector.getRow());
 
 					}else if (playerID == 2) {
 						Player collector = (Player)dataIn.readObject();
-						
-						
+						Delete collectDel = (Delete)dataIn.readObject();
+
+
 						returnButtonPos(collector);
 					//	outputToOpponent(returner);
-												
-						System.out.println("Player 2 clicked " + p2row +" "+ p2col);
-						dataUpdate(playerID, p2row, p2col);
+						returnDelPos(collectDel);						
+						System.out.println("Player 2 clicked " + collector.getRow() +" "+ collector.getRow());
+						dataUpdate(playerID, collector.getRow(), collector.getRow());
 					}
 				}
 
@@ -129,13 +128,27 @@ public class Server {
 		// Returns data of button position for player
 		public void returnButtonPos(Player collector) {
 			int id = collector.getId();
-			int r = collector.getCol();
-			int c = collector.getRow();
+			int r = collector.getRow();
+			int c = collector.getCol();
+			dataUpdate(id, r, c);
+			
+		//	Player returner = new Player(id,r,c);
+			System.out.println("RBP" + id + r + c);
 			try {
-				Player returner = new Player(id,r,c);
-				dataOut.writeObject(returner);			
-				dataOut.flush();
-				
+				dataOut.writeObject(collector);			
+			} catch (IOException ex) {
+				System.out.println("IOException from sendButtonNum() cc");
+			}
+		}
+		
+		// Returns data of button position for player
+		public void returnDelPos(Delete collectDel) {
+			int r = collectDel.getRow();
+			int c = collectDel.getCol();
+			storeDeletedPieces(r, c);
+			System.out.println("RDP" + r + c);
+			try {
+				dataOut.writeObject(collectDel);			
 			} catch (IOException ex) {
 				System.out.println("IOException from sendButtonNum() cc");
 			}
@@ -145,8 +158,7 @@ public class Server {
 		int id = returner.getId();
 		int r = returner.getCol();
 		int c = returner.getRow();
-
-	//	clientArray[playerID-1].returnButtonPos(collector);
+		clientArray[playerID-1].returnButtonPos(returner);
 		}
 		
 		
