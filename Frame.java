@@ -84,14 +84,14 @@ public class Frame extends JFrame {
 	}
 	
 	// receive data from client and removes game pieces
-	public void removePiece(int token, int i, int j) {
-		if (token == 1 || token == 3) {
+	public void removePiece(int i, int j) {
+	//	if (token == 1 || token == 3) {
 			button[i][j].setText(null);
 		}
-		if (token == 2 || token == 4) {
-			button[i][j].setText(null);
-		}
-	}
+//		if (token == 2 || token == 4) {
+//			button[i][j].setText(null);
+//		}
+//	}
 
 	// Disables buttons for when its not your turn
 	public void blockBoard() {
@@ -125,19 +125,19 @@ public class Frame extends JFrame {
 			r = r+1;
 			c = c+1;
 			button[r][c].setEnabled(true);
-			System.out.println(r + " " + c);
+		//	System.out.println(r + " " + c);
 			c = c-2;
 			button[r][c].setEnabled(true);
-			System.out.println(r + " " + c);
+		//	System.out.println(r + " " + c);
 
 		}else {
 			r = r-1;
 			c = c+1;
 			button[r][c].setEnabled(true);
-			System.out.println(r + " " + c);
+		//	System.out.println(r + " " + c);
 			c = c-2;
 			button[r][c].setEnabled(true);
-			System.out.println(r + " " + c);
+		//	System.out.println(r + " " + c);
 }	
 	}	
 	
