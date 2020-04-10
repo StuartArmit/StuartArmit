@@ -1,5 +1,5 @@
 import java.io.Serializable;
-
+// player class to pass player objects with id row and col references between server
 public class Player implements Serializable {
 	private int id;
 	private int row;

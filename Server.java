@@ -16,10 +16,7 @@ public class Server {
 	private static int rows = 8;
 	private static int columns = 8;
 	private static int[][] serverData = new int[rows][columns];
-	private int p1row;
-	private int p1col;
-	private int p2row;
-	private int p2col;
+	private int otherPlayer;
 
 
 	
@@ -52,10 +49,11 @@ public class Server {
 
 					player1 = (sc);
 					clientArray[0] = sc;
+					otherPlayer = 2;
 				} else {
 					player2 = (sc);
-
 					clientArray[1] = sc;
+					otherPlayer = 1;
 				}
 				Thread t = new Thread(sc);
 				t.start();
@@ -98,25 +96,41 @@ public class Server {
 				dataOut.flush();
 
 				while (true) {
+					Object server = dataIn.readObject();
 					if (playerID == 1) {
-						Player collector = (Player)dataIn.readObject();
-						Delete collectDel = (Delete)dataIn.readObject();
-						returnButtonPos(collector);
-			//			outputToOpponent(returner);
-						returnDelPos(collectDel);
-						System.out.println("Player 1 clicked " + collector.getRow() +" "+ collector.getRow());
-						dataUpdate(playerID, collector.getRow(), collector.getRow());
+		
+						if(server instanceof Player) {
+							Player collector = (Player)server;
+							returnButtonPos(collector);						
+							
+						System.out.println("Player 1 clicked " + collector.getRow() +" "+ collector.getCol());
+						dataUpdate(playerID, collector.getRow(), collector.getCol());
+						
+						outputToOpponent(collector);
+						}
+						
+						if(server instanceof Delete) {
+							Delete collectDel = (Delete)server;
+						//	returnDelPos(collectDel);	
+							delToOpponent(collectDel);
+						}
+					
 
 					}else if (playerID == 2) {
-						Player collector = (Player)dataIn.readObject();
-						Delete collectDel = (Delete)dataIn.readObject();
-
-
-						returnButtonPos(collector);
-					//	outputToOpponent(returner);
-						returnDelPos(collectDel);						
-						System.out.println("Player 2 clicked " + collector.getRow() +" "+ collector.getRow());
-						dataUpdate(playerID, collector.getRow(), collector.getRow());
+						if(server instanceof Player) {
+							Player collector = (Player)server;
+							returnButtonPos(collector);						
+							
+						System.out.println("Player 2 clicked " + collector.getRow() +" "+ collector.getCol());
+						dataUpdate(playerID, collector.getRow(), collector.getCol());
+						outputToOpponent(collector);
+						}
+						
+						if(server instanceof Delete) {
+							Delete collectDel = (Delete)server;
+					//		returnDelPos(collectDel);	
+							delToOpponent(collectDel);
+						}
 					}
 				}
 
@@ -132,7 +146,6 @@ public class Server {
 			int c = collector.getCol();
 			dataUpdate(id, r, c);
 			
-		//	Player returner = new Player(id,r,c);
 			System.out.println("RBP" + id + r + c);
 			try {
 				dataOut.writeObject(collector);			
@@ -154,13 +167,26 @@ public class Server {
 			}
 		}
 
-	public void outputToOpponent(Player returner) {
-		int id = returner.getId();
-		int r = returner.getCol();
-		int c = returner.getRow();
-		clientArray[playerID-1].returnButtonPos(returner);
+	public void outputToOpponent(Player collector) {
+		int id = collector.getId();
+		int r = collector.getRow();
+		int c = collector.getCol();
+		if(playerID ==1){
+			clientArray[1].returnButtonPos(collector);
+		}else {
+		clientArray[0].returnButtonPos(collector);
 		}
-		
+		}
+	public void delToOpponent(Delete collectDel) {
+		int r = collectDel.getRow();
+		int c = collectDel.getCol();
+		if (playerID == 1) {
+		clientArray[1].returnDelPos(collectDel);
+		}
+		if (playerID == 2) {
+		clientArray[0].returnDelPos(collectDel);
+		}
+		}
 		
 		// Population script but for Server side game data
 		public void dataSetup() {
